@@ -1,0 +1,63 @@
+package Graphics;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+
+public class Graph {
+
+	private BufferedImage graph;
+	private int x, y;
+	
+	public Graph(int originX, int originY, int width, int height, int[] dataSet){
+		
+		graph = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		Graphics g = graph.getGraphics();
+		
+		this.x = originX;
+		this.y = originY - height;
+		
+		g.setColor(Color.WHITE);
+		g.drawLine(0, height - 1, 0, 0);
+		g.drawLine(0, height - 1, width, height - 1);
+		
+		int[] xPoints = new int[dataSet.length];
+		int[] yPoints = new int[dataSet.length];
+		
+		int maxValue = 0;
+		
+		for(int i: dataSet){
+			
+			System.out.println(i);
+			
+			if(i > maxValue){
+				
+				maxValue = i;
+			}
+		}
+		
+		for(int i = 0; i < dataSet.length; i++){
+			
+			yPoints[i] = height - (int) (height * ((double) dataSet[i] / (double) maxValue));
+			
+			if(width / dataSet.length < 50){
+				
+				xPoints[i] = ((i + 1) * (width / dataSet.length));
+				g.fillOval(xPoints[i] - 5, yPoints[i] - 5, 10, 10);
+			}
+			
+			else{
+				
+				xPoints[i] = ((i + 1) * 50);
+				g.fillOval(xPoints[i] - 5, yPoints[i] - 5, 10, 10);
+			}
+		}
+		
+		g.drawPolyline(xPoints, yPoints, xPoints.length);
+	}
+	
+	public void draw(Graphics g){
+		
+		g.drawImage(graph, x, y, null);
+	}
+}

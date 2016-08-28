@@ -1,0 +1,216 @@
+package Data;
+
+import java.util.ArrayList;
+
+public class Market {
+
+	private int maxPrice, minSquareFootage, minNumBath, minNumBedroom;
+	private boolean lawn, pool;
+	
+	private double bankValue;
+	
+	private int multiplier = 1;
+	private int monthCount;
+	
+	private ArrayList<House> dailyHouses = new ArrayList<House>();
+	private ArrayList<Integer> trendStats = new ArrayList<Integer>();
+	private int currentHouse, currMonth;
+	
+	public Market(int maxPrice, int minSquareFootage, int minNumBath, int minNumBedroom, boolean lawn, boolean pool){
+		
+		this.maxPrice = maxPrice;
+		this.minSquareFootage = minSquareFootage;
+		this.minNumBath = minNumBath;
+		this.minNumBedroom = minNumBedroom;
+		this.lawn = lawn;
+		this.pool = pool;
+		
+		getNewHouses();
+	}
+	
+	public String daysUntilUpdate(){
+		
+		return "New houses available in " + Integer.toString(10 - (GameCalendar.day % 10)) + " days";
+	}
+	
+	public void updateMarket(){
+		
+		if(GameCalendar.month != currMonth){
+			
+			newTrend();
+		}
+		
+		if(GameCalendar.day % 10 == 0 && GameCalendar.hour == 23 && GameCalendar.minute == 0){
+			
+			getNewHouses();
+		}
+		
+		currMonth = GameCalendar.month;
+	}
+	
+	public House buyHouse(){
+		
+		House house = getHouse();
+		dailyHouses.remove(house);
+		
+		if(currentHouse >= dailyHouses.size()) {currentHouse = 0;}
+		else if(currentHouse < 0) {currentHouse = dailyHouses.size() - 1;}
+		
+		return house;
+	}
+	
+	public void previousHouse() {currentHouse--; if(currentHouse < 0) {currentHouse = dailyHouses.size() - 1;}}
+	public void nextHouse() {currentHouse++; if(currentHouse >= dailyHouses.size()) {currentHouse = 0;}}
+	
+	public House getHouse(){
+		
+		if(dailyHouses.size() > currentHouse){
+			
+			return dailyHouses.get(currentHouse);
+		}
+		
+		return null;
+	}
+	
+	public void getNewHouses(){
+		
+		dailyHouses = new ArrayList<House>();
+		
+		for(int i = 0; i < 6 + (Math.random() * 4); i++){
+			
+			dailyHouses.add(newHouse());
+		}
+	}
+	
+	public House newHouse() {
+
+		House house;
+		
+		house = new House();
+		house.setSquareFootage((int) (minSquareFootage + (500 * (0.5 - Math.random()))));
+		house.setNumBath(1 + (int) (Math.log10(house.getSquareFootage())));
+		house.setNumBedroom((int) (house.getNumBath() + (int) Math.signum(.75 - Math.random())));
+		house.setPrice((int) (maxPrice + (10000 * (0.5 - Math.random()))));
+		house.setLawn(false);
+		house.setPool(false);
+		
+		if(Math.random() < 0.5) {house.setLawn(true);}
+		if(Math.random() < 0.5) {house.setPool(true);}
+		
+		return house;
+	}
+	
+	public boolean checkHouseSale(House h){
+		
+		double priceDiff = Math.abs((double) (maxPrice - h.getSellPrice()) / (double) maxPrice);
+		double squareFootageDiff = Math.abs((double) (minSquareFootage - h.getSquareFootage()) / (double) minSquareFootage);
+		
+		if(h.getSellPrice() > maxPrice && priceDiff > 0.02){return false;}
+		if((h.getPool() && pool) || (h.getLawn() && lawn)){
+			
+			if(h.getSquareFootage() < minSquareFootage && squareFootageDiff > .75){return false;}
+		}
+		else if(h.getSquareFootage() < minSquareFootage && squareFootageDiff > .5){return false;}
+		
+		return true;
+	}
+	
+	public void newTrend() {
+		
+		monthCount--;
+		
+		if(monthCount == 0) {
+			
+			double rand = Math.random();
+			
+			if(rand < 0.5){ //market goes up for 6 months
+				
+				monthCount = 6;
+				multiplier = 1;
+			}
+			
+			else if(rand >= 0.5 && rand < 0.95){ //market goes down for 2 months
+				
+				monthCount = 2;
+				multiplier = -1;
+			}
+			
+			else if(rand >= 0.75 && rand < 0.95){ //market booms for 2 months
+				
+				monthCount = 2;
+				multiplier = 2;
+			}
+			else{ //market crashes for 4 months
+				
+				monthCount = 4;
+				multiplier = -3;
+			}
+			
+			System.out.println(multiplier);
+		}
+		
+		switch(GameCalendar.getSeason()){
+		
+		case "Winter":
+			
+			pool = false;
+			lawn = false;
+			break;
+		case "Spring":
+			
+			pool = true;
+			lawn = true;
+			break;
+		case "Summer":
+			
+			pool = true;
+			lawn = true;
+			break;
+		case "Fall":
+			
+			pool = false;
+			lawn = true;
+			break;
+		}
+		
+		maxPrice += multiplier * (1500 + 1500 * Math.random());
+		
+		addTrendStatistic(maxPrice);
+		
+		minSquareFootage += (.75 - Math.random()) * 1000;
+		minNumBath = minSquareFootage / 600;
+		minNumBedroom = minNumBath + (int) (2 * (.60 - Math.random()));
+		if(minNumBedroom < minNumBath - 1) {minNumBedroom = minNumBath - 1;}
+	}
+
+	public void addTrendStatistic(int price) {
+		
+		trendStats.add(price);
+	}
+	
+	public int[] getTrendStatistics() {
+		
+		int[] stats = new int[trendStats.size()];
+		
+		for(int i = 0; i < trendStats.size(); i++){
+			
+			stats[i] = trendStats.get(i);
+		}
+		
+		return stats;
+	}
+	
+	public void setBankValue(double bankValue) {this.bankValue = bankValue;}
+	public double getBankValue() {return bankValue;}
+	
+	public int getHouseCount() {return dailyHouses.size();}
+	public String getHouseCountAsString() {return Integer.toString(dailyHouses.size());}
+	
+	public String getInfo() {return getMaxPriceAsString() + ", " + getSquareFootageAsString() + ", " + getNumBedroomsAsString() + ", " + getNumBathAsString() + ", " + getLawnAsString() + ", " + getPoolAsString();}
+	public String getSquareFootageAsString() {return "Square Footage: " + Integer.toString(minSquareFootage) + " sq. ft.";}
+	public String getMaxPriceAsString() {return "Max Price: $" + Integer.toString(maxPrice);}
+	public String getNumBedroomsAsString() {return "Bedrooms: " + Integer.toString(minNumBedroom);}
+	public String getNumBathAsString() {return "Bathrooms: " + Integer.toString(minNumBath);}
+	public String getLawnAsString() {if(lawn) {return "Lawn: ✓";} else {return "Lawn: X";}}
+	public String getPoolAsString() {if(pool) {return "Pool: ✓";} else {return "Pool: X";}}
+}

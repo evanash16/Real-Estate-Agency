@@ -1,0 +1,219 @@
+package Graphics;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.font.TextAttribute;
+import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.JFrame;
+import javax.swing.Timer;
+
+import Data.Bank;
+import Data.GameCalendar;
+import Data.House;
+import Data.Market;
+
+public class GUI extends JFrame implements ActionListener, KeyListener{
+
+	private Dimension screensize = new Dimension(Toolkit.getDefaultToolkit().getScreenSize());
+	private Timer updateTimer;
+	private GameCalendar calendar = new GameCalendar();
+	private Market market;
+	private Bank bank;
+	
+	public GUI(){
+		
+		super("Real Estate Agency");
+		
+		init();
+	}
+	
+	public void init(){
+		
+		setSize(screensize);
+		setResizable(false);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		addKeyListener(this);
+		
+		market = new Market(50000, 1000, 2, 1, false, false);
+		market.newHouse();
+		
+		bank = new Bank(50000);
+		
+		updateTimer = new Timer(10, this);
+		updateTimer.start();
+		
+		setVisible(true);
+	}
+	
+	public void paint(Graphics g){
+		
+		BufferedImage buffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+		Graphics g2 = buffer.getGraphics();
+		
+		Map<TextAttribute, Integer> fontAttributes = new HashMap<TextAttribute, Integer>();
+		fontAttributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
+		g2.setFont(new Font(null, Font.BOLD, getHeight() / 20).deriveFont(fontAttributes));
+		g2.setColor(Color.YELLOW);
+		g2.drawString("TREND OF THE MONTH", (getWidth() - g2.getFontMetrics().stringWidth("TREND OF THE MONTH")) / 2, 3 * (getHeight() / 25));
+		
+		g2.setFont(new Font(null, Font.BOLD, getHeight() / 25));
+		g2.setColor(Color.WHITE);
+		g2.drawString(GameCalendar.getDate(), 5, getHeight() - 5);
+		g2.drawString(GameCalendar.getTime(), getWidth() - g2.getFontMetrics().stringWidth(GameCalendar.getTime()) - 5, getHeight() - 5);
+		g2.drawString(GameCalendar.getSeason(), (getWidth() - g2.getFontMetrics().stringWidth(GameCalendar.getSeason())) / 2, getHeight() - 5);
+		
+		g2.drawString(market.getMaxPriceAsString(), (getWidth() - g2.getFontMetrics().stringWidth(market.getMaxPriceAsString())) / 2, 5 * (getHeight() / 25));
+		g2.drawString(market.getSquareFootageAsString(), (getWidth() - g2.getFontMetrics().stringWidth(market.getSquareFootageAsString())) / 2, 6 * (getHeight() / 25));
+		g2.drawString(market.getNumBedroomsAsString() + "  " + market.getNumBathAsString(),  (getWidth() - g2.getFontMetrics().stringWidth(market.getNumBedroomsAsString() + "  " + market.getNumBathAsString())) / 2, 7 * (getHeight() / 25));
+		g2.drawString(market.getLawnAsString() + "  " + market.getPoolAsString(), (getWidth() - g2.getFontMetrics().stringWidth(market.getLawnAsString() + "  " + market.getPoolAsString())) / 2, 8 * (getHeight() / 25));
+		
+		g2.setFont(new Font(null, Font.BOLD, getHeight() / 25).deriveFont(fontAttributes));
+		g2.setColor(Color.GREEN);
+		g2.drawString("HOUSE FOR SALE", (getWidth() - g2.getFontMetrics().stringWidth("HOUSE FOR SALE")) / 2, 10 * (getHeight() / 25));
+			
+		g2.setFont(new Font(null, Font.PLAIN, getHeight() / 30));
+		g2.setColor(Color.WHITE);
+		
+		if(market.getHouseCount() > 1){
+	
+			g2.drawString("<A", ((getWidth() - g2.getFontMetrics().stringWidth("HOUSE FOR SALE")) / 2) - g2.getFontMetrics().stringWidth("<A     "), 10 * (getHeight() / 25));
+			g2.drawString("D>", ((getWidth() + g2.getFontMetrics().stringWidth("HOUSE FOR SALE")) / 2) + g2.getFontMetrics().stringWidth("     "), 10 * (getHeight() / 25));
+		}
+		
+		g2.setFont(new Font(null, Font.PLAIN, getHeight() / 30));
+		g2.setColor(Color.RED);
+		g2.drawString(market.daysUntilUpdate(), (getWidth() - g2.getFontMetrics().stringWidth(market.daysUntilUpdate())) / 2, 11 * (getHeight() / 25));
+		
+		g2.setFont(new Font(null, Font.PLAIN, getHeight() / 25));
+		g2.setColor(Color.WHITE);
+		House house = market.getHouse();
+		
+		if(house != null){
+			
+			g2.drawString(house.getPriceAsString(), (getWidth() - g2.getFontMetrics().stringWidth(house.getPriceAsString())) / 2, 12 * (getHeight() / 25));
+			g2.drawString(house.getSquareFootageAsString(), (getWidth() - g2.getFontMetrics().stringWidth(house.getSquareFootageAsString())) / 2, 13 * (getHeight() / 25));
+			g2.drawString(house.getNumBedroomsAsString() + " " + house.getNumBathAsString(), (getWidth() - g2.getFontMetrics().stringWidth(house.getNumBedroomsAsString() + " " + house.getNumBathAsString())) / 2, 14 * (getHeight() / 25));
+			g2.drawString(house.getLawnAsString() + " " + house.getPoolAsString(), (getWidth() - g2.getFontMetrics().stringWidth(house.getLawnAsString() + " " + house.getPoolAsString())) / 2, 15 * (getHeight() / 25));
+		}
+		
+		g2.setFont(new Font(null, Font.BOLD, getHeight() / 15).deriveFont(fontAttributes));
+		g2.setColor(Color.GREEN);
+		g2.drawString("BANK", ((getWidth() / 3) - g2.getFontMetrics().stringWidth("BANK")) / 2, 7 * (getHeight() / 25));
+		
+		g2.setFont(new Font(null, Font.PLAIN, getHeight() / 30));
+		g2.setColor(Color.WHITE);
+		g2.drawString(bank.getBalanceAsString(), ((getWidth() / 3) - g2.getFontMetrics().stringWidth(bank.getBalanceAsString())) / 2, 8 * (getHeight() / 25));
+		
+		g2.setFont(new Font(null, Font.BOLD, getHeight() / 25).deriveFont(fontAttributes));
+		g2.setColor(Color.GREEN);
+		g2.drawString("MY HOUSES", ((getWidth() / 3) - g2.getFontMetrics().stringWidth("MY HOUSES")) / 2, 10 * (getHeight() / 25));
+
+		g2.setFont(new Font(null, Font.PLAIN, getHeight() / 30));
+		g2.setColor(Color.WHITE);
+		
+		if(bank.getHouseCount() > 1){
+			
+			g2.drawString("<", (((getWidth() / 3) - g2.getFontMetrics().stringWidth("MY HOUSES")) / 2) - g2.getFontMetrics().stringWidth("<    "), 10 * (getHeight() / 25));
+			g2.drawString(">", (((getWidth() / 3) + g2.getFontMetrics().stringWidth("MY HOUSES")) / 2) + g2.getFontMetrics().stringWidth("    "), 10 * (getHeight() / 25));
+		}
+		
+		g2.setFont(new Font(null, Font.PLAIN, getHeight() / 25));
+		house = bank.getHouse();
+		
+		if(house != null){
+			
+			g2.drawString(house.getPriceAsString(), ((getWidth() / 3) - g2.getFontMetrics().stringWidth(house.getPriceAsString())) / 2, 12 * (getHeight() / 25));
+			g2.drawString(house.getSquareFootageAsString(), ((getWidth() / 3) - g2.getFontMetrics().stringWidth(house.getSquareFootageAsString())) / 2, 13 * (getHeight() / 25));
+			g2.drawString(house.getNumBedroomsAsString() + " " + house.getNumBathAsString(), ((getWidth() / 3) - g2.getFontMetrics().stringWidth(house.getNumBedroomsAsString() + " " + house.getNumBathAsString())) / 2, 14 * (getHeight() / 25));
+			g2.drawString(house.getLawnAsString() + " " + house.getPoolAsString(), ((getWidth() / 3) - g2.getFontMetrics().stringWidth(house.getLawnAsString() + " " + house.getPoolAsString())) / 2, 15 * (getHeight() / 25));
+			g2.drawString(house.getSellPriceAsString(), ((getWidth() / 3) - g2.getFontMetrics().stringWidth(house.getSellPriceAsString())) / 2, 17 * (getHeight() / 25));
+		}
+		
+		new Graph(2 * (getWidth() / 3), getHeight() / 2, getWidth() / 4, getHeight() / 4, market.getTrendStatistics(), "Trend Statistics").draw(g2);
+		
+		g.drawImage(buffer, 0, 0, null);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		
+		if(arg0.getSource() == updateTimer){
+			
+			calendar.updateTime();
+			market.updateMarket();
+			
+			repaint();
+		}
+	}
+
+	@Override
+	public void keyPressed(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyReleased(KeyEvent arg0) {
+		
+		if(arg0.getKeyCode() == KeyEvent.VK_A){
+			
+			market.previousHouse();
+		}
+		
+		if(arg0.getKeyCode() == KeyEvent.VK_D){
+			
+			market.nextHouse();
+		}
+		
+		if(arg0.getKeyCode() == KeyEvent.VK_LEFT){
+			
+			bank.previousHouse();
+		}
+		
+		if(arg0.getKeyCode() == KeyEvent.VK_RIGHT){
+			
+			bank.nextHouse();
+		}
+		
+		if(arg0.getKeyCode() == KeyEvent.VK_B){
+			
+			House house = market.buyHouse();
+			
+			if(house != null) {bank.buyHouse(house);}
+		}
+		
+		if(arg0.getKeyCode() == KeyEvent.VK_S){
+			
+			House house = bank.getHouse();
+			if(house != null && market.checkHouseSale(house)) {bank.sellHouse(house, house.getSellPrice());}
+		}
+		
+		if(arg0.getKeyCode() == KeyEvent.VK_UP){
+			
+			House house = bank.getHouse();
+			if(house != null) {bank.setSellPrice(bank.getHouse().getSellPrice() + 100);}
+		}
+		
+		if(arg0.getKeyCode() == KeyEvent.VK_DOWN){
+			
+			House house = bank.getHouse();
+			if(house != null && house.getSellPrice() - 100 >= 0) {bank.setSellPrice(bank.getHouse().getSellPrice() - 100);}
+		}
+	}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+}

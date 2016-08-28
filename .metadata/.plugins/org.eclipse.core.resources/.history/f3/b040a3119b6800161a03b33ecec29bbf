@@ -1,0 +1,11 @@
+package Data;
+
+public class Bank {
+
+	private int account;
+	
+	public Bank(){
+		
+		
+	}
+}

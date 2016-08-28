@@ -1,0 +1,44 @@
+package Graphics;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+
+public class Graph {
+
+	public BufferedImage buffer;
+	
+	public Graph(int originX, int originY, int width, int height, int[] dataSet){
+		
+		buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		Graphics g = buffer.getGraphics();
+		
+		g.setColor(Color.WHITE);
+		g.drawLine(originX, originY, originX, originY - height);
+		g.drawLine(originX, originY, originX + width, originY);
+		
+		int[] xPoints = new int[dataSet.length];
+		int[] yPoints = new int[dataSet.length];
+		
+		int maxValue = 0;
+		
+		for(int i: dataSet){
+			
+			if(i > maxValue){
+				
+				maxValue = i;
+			}
+		}
+		
+		for(int i = 0; i < dataSet.length; i++){
+			
+			if(width / dataSet.length < 50){
+				
+				xPoints[i] = originX + ((i + 1) * (width / dataSet.length));
+				yPoints[i] = originY - (int) (height * ((double) dataSet[i] / (double) maxValue));
+			}
+		}
+		
+		for()
+	}
+}

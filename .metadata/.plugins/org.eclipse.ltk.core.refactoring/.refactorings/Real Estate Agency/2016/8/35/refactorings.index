@@ -1,0 +1,11 @@
+1471747144166	Rename package 'DataManagers'
+1471821885357	Copy field
+1471838937024	Rename local variable 'currentHouse'
+1471896129630	Rename method 'getSquareFootage'
+1471896134657	Rename method 'getMaxPrice'
+1471896139377	Rename method 'getNumBedrooms'
+1471896143987	Rename method 'getNumBath'
+1471896148933	Rename method 'getLawn'
+1471896153958	Rename method 'getPool'
+1471908027480	Rename method 'sellHouse'
+1471908041124	Rename method 'checkHouseSlae'

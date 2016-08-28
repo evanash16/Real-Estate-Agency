@@ -1,0 +1,47 @@
+package Data;
+
+import java.util.ArrayList;
+
+public class Bank {
+
+	private int account, currentHouse = 0;
+	private ArrayList<House> properties = new ArrayList<House>();
+	
+	public Bank(int openAmount){
+		
+		this.account = openAmount;
+	}
+	
+	private void buyHouse(House h) {
+
+		account -= h.getPrice();
+		properties.add(h);
+	}
+	
+	private void sellHouse(House h, int sellPrice){
+		
+		account += sellPrice;
+		properties.remove(h);
+	}
+	
+	private boolean canAfford(House h){
+		
+		if(h.getPrice() <= account){
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private void nextHouse() {
+		
+		currentHouse++;
+		if(currentHouse >= properties.size()) {currentHouse = 0;}
+	}
+	
+	private House getHouse() {
+		
+		return properties.get(currentHouse);
+	}
+}

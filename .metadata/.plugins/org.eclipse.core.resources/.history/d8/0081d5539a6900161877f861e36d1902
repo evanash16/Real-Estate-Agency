@@ -1,0 +1,35 @@
+package Graphics;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+
+public class Graph {
+
+	public BufferedImage buffer;
+	
+	public Graph(int originX, int originY, int width, int height, int[] dataSet){
+		
+		buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		Graphics g = buffer.getGraphics();
+		
+		g.setColor(Color.WHITE);
+		g.drawLine(originX, originY, originX, originY - height);
+		g.drawLine(originX, originY, originX + width, originY);
+		
+		if(width / dataSet.length < 50){
+			
+			int spacing = width / dataSet.length;
+			
+			for(int i = 1; i <= dataSet.length; i++){
+				
+				g.fillOval(originX + (i * spacing) - 10, originY - dataSet[i - 1] - 10, 20, 20);
+			}
+		}
+		
+		for(int i = 1; i <= dataSet.length; i++){
+			
+			g.fillOval(originX + (i * 50) - 10, originY - dataSet[i - 1] - 10, 20, 20);
+		}
+	}
+}
